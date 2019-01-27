@@ -6,12 +6,60 @@ const morgan = require("morgan");
 mongoose.Promise = global.Promise;
 
 const {PORT, DATABASE_URL} = require("./config");
-const {blogpost} = require("./model");
+const {BlogPost} = require("./models");
 
 const app = express();
 
 app.use(morgan("common"));
 app.use(express.json());
+
+// app.get("/posts", function(req, res) {
+//     BlogPost
+//     .find()
+//     .then(function(posts){
+//         console.log(posts);
+//         res.json(posts.map(function(posts){
+//             posts.serialize()
+//         }));
+//     })
+//     .catch(function(error) {
+//         res.status(500).json({error: "encountered error"});
+//     });
+// });
+
+app.get('/posts', (req, res) => {
+    BlogPost
+        .find()
+        .then(posts => {
+            res.json(posts.map(post => post.serialize()));
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: 'something went terribly wrong' });
+        });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let server;
 
