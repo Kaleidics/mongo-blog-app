@@ -39,7 +39,7 @@ app.get("/posts/:id", (req, res) => {
         });
 });
 
-//create a new post CONTINUE HERE!!
+//create a new post CONTINUE HERE!!!
 app.post("/posts", (req, res) => {
     const requiredFields = ["title", "content", "author_id"];
     for (let i=0; i < requiredFields.length; i++) {
