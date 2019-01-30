@@ -6,7 +6,8 @@ const morgan = require("morgan");
 mongoose.Promise = global.Promise;
 
 const {PORT, DATABASE_URL} = require("./config");
-const {BlogPost} = require("./models");
+const { Author, BlogPost} = require("./models");
+
 
 const app = express();
 
@@ -26,17 +27,6 @@ app.get('/posts', (req, res) => {
         });
 });
 
-// app.get("/posts", function(req, res) {
-//     BlogPost.find().then(function(posts) {
-//         res.json(posts.map(function(post) {
-//             post.serialize()
-//         }))
-//     .catch(function(error) {
-//         console.log(error);
-//         res.status(500).json({ error: 'failed'});
-//     });
-//     });
-// });
 
 //single post by id
 app.get("/posts/:id", (req, res) => {
@@ -49,9 +39,9 @@ app.get("/posts/:id", (req, res) => {
         });
 });
 
-//create a new post
+//create a new post CONTINUE HERE!!
 app.post("/posts", (req, res) => {
-    const requiredFields = ["title", "content", "author"];
+    const requiredFields = ["title", "content", "author_id"];
     for (let i=0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if (!(field in req.body)) {
@@ -61,17 +51,41 @@ app.post("/posts", (req, res) => {
         }
     }
 
-    BlogPost
-        .create({
-            title: req.body.title,
-            content: req.body.content,
-            author: req.body.author
+    Author
+        .findById(req.body.author_id)
+        .then(author => {
+            console.log("made it here");
+            if (author) {
+                console.log("made it inside author boolean");
+                BlogPost
+                    .create({
+                        title: req.body.title,
+                        content: req.body.content,
+                        author: req.body.id
+                    })
+                    .then(blogPost => res.status(201).json({
+                        id: blogPost.id,
+                        author: `${author.firstName} ${author.lastName}`,
+                        content: blogPost.content,
+                        title: blogPost.title,
+                        comments: blogPost.comments
+                    }))
+                    .catch(err => {
+                        console.error(err);
+                        res.status(500).json({ error: `Something went wrong 1`});
+                    });
+            }
+            else {
+                const message = `Author not found`;
+                console.error(message);
+                res.status(500).json({ error: `something went wrong 2`});
+            }
         })
-        .then(blogPost => res.status(201).json(blogPost.serialize()))
         .catch(err => {
             console.error(err);
-            return res.status(500).json({ error: "failed"});
+            res.status(500).json({ error: `failed`});
         });
+
 });
 
 //delete a post
