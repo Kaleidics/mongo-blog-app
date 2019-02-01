@@ -155,11 +155,12 @@ app.get('/posts', (req, res) => {
     BlogPost
         .find()
         .then(posts => {
+            console.log(posts);
             res.json(posts.map(post => post.serialize()));
         })
         .catch(err => {
             console.error(err);
-            res.status(500).json({ error: 'something went terribly wrong' });
+            res.status(500).json({ error: 'something went terribly wrong here' });
         });
 });
 
@@ -190,7 +191,7 @@ app.post("/posts", (req, res) => {
     Author
         .findById(req.body.author_id)
         .then(author => {
-            console.log("made it here");
+            console.log("made it here", author);
             if (author) {
                 console.log("made it inside author boolean");
                 BlogPost
@@ -251,7 +252,7 @@ app.put("/posts/:id", (req, res) => {
             updated[field] = req.body[field];
         }
     });
-
+    console.log(req.params.id);
     BlogPost
         .findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
         .then(updatedPost => res.status(204).end())
@@ -259,7 +260,6 @@ app.put("/posts/:id", (req, res) => {
 
 })
 
-//needs clarification
 app.use("*", function (req, res) {
     res.status(404).json({ message: "Not found"});
 });
